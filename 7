@@ -1,0 +1,109 @@
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules # Sample Market Basket Data
+# Each sublist represents a transaction, and elements within are items purchased dataset = [
+['Milk', 'Onion', 'Nutmeg', 'Kidney Beans', 'Eggs', 'Yogurt'],
+['Dill', 'Onion', 'Nutmeg', 'Kidney Beans', 'Eggs', 'Yogurt'], ['Milk', 'Apple', 'Kidney Beans', 'Eggs'],
+['Milk', 'Unicorn', 'Corn', 'Kidney Beans', 'Yogurt'],
+['Corn', 'Onion', 'Onion', 'Kidney Beans', 'Ice cream', 'Eggs']
+]
+# 1. Data Preprocessing: Convert the list of transactions into a one-hot encoded DataFrame te = TransactionEncoder()
+te_ary = te.fit(dataset).transform(dataset) print(te_ary)
+df = pd.DataFrame(te_ary, columns=te.columns_) print(df)
+# 2. Apply the Apriori Algorithm to find Frequent Itemsets
+# min_support: Minimum support threshold for an itemset to be considered frequent # use_colnames=True: Use item names as column headers instead of indices
+ 
+frequent_itemsets = apriori(df, min_support=0.2, use_colnames=True)
+
+
+print("Frequent Itemsets:") print(frequent_itemsets)
+# 3. Generate Association Rules from Frequent Itemsets
+# metric: The evaluation metric to use (e.g., 'lift', 'confidence', 'support') # min_threshold: Minimum threshold for the chosen metric
+rules = association_rules(frequent_itemsets, metric="confidence", min_threshold=.8) # Display the results
+print("\nAssociation Rules (sorted by lift):") print(rules.sort_values(by='confidence', ascending=False))
+Output:
+[[False False False True False True True True True False True] [False False True True False True False True True False True] [ True False False True False True True False False False False] [False True False False False True True False False True True]
+[False True False True True True False False True False False]]
+Apple Corn Dill Eggs Ice cream Kidney Beans Milk Nutmeg Onion \
+
+0 False False False True	False	True True	True True
+1 False False True True	False	True False	True True
+2 True False False True	False	True True	False False
+3 False True False False	False	True True	False False
+4 False True False True	True	True False	False True
+
+
+Unicorn Yogurt
+0	False  True
+1	False  True
+2	False False
+3	True True
+4	False False
+ 
+Frequent Itemsets:
+
+	support	itemsets
+0	0.2	(Apple)
+1	0.4	(Corn)
+2	0.2	(Dill)
+3	0.8	(Eggs)
+4	0.2	(Ice cream)
+..	...	...
+144	0.4	(Kidney Beans, Nutmeg, Eggs, Yogurt, Onion)
+145	0.2	(Nutmeg, Eggs, Yogurt, Onion, Milk)
+146	0.2	(Kidney Beans, Nutmeg, Yogurt, Onion, Milk)
+147	0.2 (Kidney Beans, Nutmeg, Eggs, Dill, Yogurt, Onion)
+148	0.2 (Kidney Beans, Nutmeg, Eggs, Yogurt, Onion, Milk)
+
+
+[149 rows x 2 columns]
+
+
+Association Rules (sorted by lift):
+antecedents	consequents antecedent support \ 629 (Onion, Milk) (Yogurt, Nutmeg, Eggs, Kidney Beans)	0.2
+0	(Apple)	(Eggs)	0.2	
+1	(Apple)	(Kidney Beans)		0.2
+2	(Apple)	(Milk)	0.2	
+3	(Ice cream)	(Corn)	0.2
+..	...	...	...
+9	(Dill)	(Onion)	0.2
+8	(Dill)	(Nutmeg)	0.2
+7	(Dill)	(Kidney Beans)	0.2
+6	(Dill)	(Eggs)	0.2
+12	(Kidney Beans)	(Eggs)	1.0
+ 
+consequent support support confidence	lift representativity \
+
+629	0.4	0.2	1.0 2.500000	1.0
+0	0.8	0.2	1.0 1.250000	1.0
+1	1.0	0.2	1.0 1.000000	1.0
+2	0.6	0.2	1.0 1.666667	1.0
+3	0.4	0.2	1.0 2.500000	1.0
+..	...	...	...	...	...
+9	0.6	0.2	1.0 1.666667	1.0
+8	0.4	0.2	1.0 2.500000	1.0
+7	1.0	0.2	1.0 1.000000	1.0
+6	0.8	0.2	1.0 1.250000	1.0
+12	0.8	0.8	0.8 1.000000	1.0
+
+
+leverage conviction zhangs_metric jaccard certainty kulczynski 629	0.12	inf	0.75 0.500000	1.0 0.750000
+0	0.04	inf	0.25 0.250000	1.0 0.625000
+1	0.00	inf	0.00 0.200000	0.0 0.600000
+2	0.08	inf	0.50 0.333333	1.0 0.666667
+3	0.12	inf	0.75 0.500000	1.0 0.750000
+..	...	...	...	...	...	...
+9	0.08	inf	0.50 0.333333	1.0 0.666667
+8	0.12	inf	0.75 0.500000	1.0 0.750000
+7	0.00	inf	0.00 0.200000	0.0 0.600000
+6	0.04	inf	0.25 0.250000	1.0 0.625000
+12	0.00	1.0	0.00 0.800000	0.0 0.900000
+
+
+
+
+
+
+
+
+
